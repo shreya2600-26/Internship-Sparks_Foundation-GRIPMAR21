@@ -1,0 +1,157 @@
+---
+TASK: '1'
+Author: Shreya Khare
+---
+
+# SHREYA KHARE 
+
+
+# TASK 1
+
+
+
+#Importing the dataset 
+```{r}
+dt<- read.csv(url("https://raw.githubusercontent.com/AdiPersonalWorks/Random/master/student_scores%20-%20student_scores.csv"))
+```
+
+#viewing the structure of the dataset
+```{r}
+str(dt)
+```
+
+#viewing top 10 rows of the data
+```{r}
+head(dt,10)
+```
+
+
+#summary of data
+```{r}
+summary(dt)
+```
+
+
+#The goal here is to establish a mathematical equation for Scores as a function of Hours, so that we can use it to predict Score when only the hour of the student is known.
+
+#So it is desirable to build a linear regression model with the response variable as Scores and the predictor as Hours.
+
+#Before we begin building the regression model,we will do The graphical analysis and correlation study to analyse and understand the variables
+
+
+#GRAPHICAL ANALYSIS
+
+#1. SCATTER PLOT - Visualise the linear relationship between the predictor and response
+
+
+#The scatter plot along with the smoothing line below suggests a linear and positive relationship between the hours and Score 
+```{r}
+scatter.smooth(x=dt$Hours, y=dt$Scores, main="Scores ~ Hours")  # scatterplot
+```
+
+
+#BOXPLOT- To spot any outlier observations in the variable. Having outliers in predictor can drastically affect the predictions as they can affect the direction/slope of the line of best fit.
+```{r}
+par(mfrow=c(1, 2))  # divide graph area in 2 columns
+
+boxplot(dt$Hours, main="Hours", sub=paste("Outlier rows: ", boxplot.stats(dt$Hours)$out))  # box plot for 'HOURS'
+
+boxplot(cars$dist, main="Scores", sub=paste("Outlier rows: ", boxplot.stats(dt$Scores)$out))  # box plot for 'Scores'
+
+```
+
+
+#DENSITY PLOT- To see the distribution of the predictor variable. Ideally, a close to normal distribution (a bell shaped curve), without being skewed to the left or right is preferred.
+```{r}
+library(e1071)  # for skewness function
+par(mfrow=c(1, 2))  # divide graph area in 2 columns
+
+plot(density(dt$Hours), main="Density Plot: HOURS", ylab="Frequency", sub=paste("Skewness:", round(e1071::skewness(dt$Hours), 2)))  # density plot for 'Hours'
+
+polygon(density(dt$Hours), col="red")
+
+plot(density(dt$Scores), main="Density Plot: SCORES", ylab="Frequency", sub=paste("Skewness:", round(e1071::skewness(dt$Scores), 2)))  # density plot for 'Scores'
+
+polygon(density(dt$Scores), col="red")
+
+```
+#Correlation analysis - tells about the degree of dependence between the two variables.
+
+
+#the correaltio between scores and hours is 0.97 so we can say that there is a very strong positive relation between them.
+```{r}
+cor(dt$Hours, dt$Scores) 
+```
+#Builiding the linear model
+# we have got the equation Scores= 9.776*(Hours)+ 2.484
+```{r}
+linearMod <- lm(Scores ~ Hours, data=dt)  # build linear regression model on full data
+print(linearMod)
+```
+#Checking if the model is ststistically significant
+
+#summary of model
+
+#a linear model is statistically significant only when both these p-Values are less than the pre-determined statistical significance level of 0.05.
+
+#This can visually interpreted by the significance stars at the end of the row against each X variable.
+
+#The more the stars beside the variables p-Value, the more significant the variable.
+
+#so for our dataset there are significant  stars fro Hours variable hence it is statistically significant.
+
+#In our case, linearMod, both these p-Values are well below the 0.05 threshold.So, you can reject the null hypothesis and conclude the model is indeed statistically significant.
+```{r}
+summary(linearMod)
+```
+#Creating a trainig ad test data
+```{r}
+set.seed(100)  # setting seed to reproduce results of random sampling
+trainingRowIndex <- sample(1:nrow(dt), 0.8*nrow(dt))  # row indices for training data
+trainingData <- dt[trainingRowIndex, ]  # model training data
+testData  <- dt[-trainingRowIndex, ]   # test data
+```
+
+#Fit the model on training data and predict Scores on test data
+```{r}
+lmMod <- lm(Scores ~ Hours, data=trainingData)  
+ScorePred <- predict(lmMod, testData) 
+```
+
+#summary
+#From the model summary, the model p value and predictors p value are less than the significance level.So you have a statistically significant model.
+```{r}
+summary (lmMod)
+
+```
+
+#Calculate prediction accuracy and error rates
+
+#A simple correlation between the actuals and predicted values can be used as a form of accuracy measure.A higher correlation accuracy implies that the actuals and predicted values have similar directional movement, i.e. when the actuals values increase the predicted values also increase and vice-versa.
+```{r}
+actuals_preds <- data.frame(cbind(actuals=testData$Scores, predicteds=ScorePred))  # make actuals_predicteds dataframe.
+correlation_accuracy <- cor(actuals_preds)
+head(actuals_preds)
+```
+
+
+#Calculate the Min Max accuracy and MAPE
+```{r}
+DMwR::regr.eval(actuals_preds$actuals, actuals_preds$predicteds)
+```
+
+
+#predicting score if a student studies for 9.25 hrs
+```{r}
+#Creating data frame for predicting values
+p <-  as.data.frame(9.25)
+colnames(p) <- "Hours"
+```
+
+
+#the Predicted Score value is 91.08419
+```{r}
+predict(lmMod, newdata = p)
+```
+
+#Hence we have predicted the score based on number of hours by implementing a linear model

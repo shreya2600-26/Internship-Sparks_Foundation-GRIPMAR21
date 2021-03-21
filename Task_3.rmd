@@ -1,0 +1,249 @@
+---
+TASK: '3'
+Author: Shreya Khare
+---
+# SHREYA KHARE
+
+
+# TASK 3
+
+
+#Importing the libraries
+```{r}
+library(tidyverse)
+library(DT)
+library(choroplethr)
+library(choroplethrMaps)
+```
+
+#importing the dataset
+```{r}
+Superstore= read.csv("SampleSuperstore.csv")
+```
+
+#doing the slaes Analysis
+
+#Statewise sales analysis
+```{r}
+Statewise_Sales= Superstore %>%
+  group_by(State) %>% 
+  summarise(Total_Sales= sum(Sales)) %>%
+  arrange(desc(Total_Sales))
+datatable(Statewise_Sales)
+```
+
+
+#Plotting Statewise Sales Analysis
+```{r}
+ggplot(Statewise_Sales,aes(reorder(State,Total_Sales),Total_Sales,fill=State))+
+  geom_col(width = 0.5, alpha = 0.5)+
+  geom_point(size=3, color="black",alpha=0.07)+
+  scale_x_discrete(labels = Statewise_Sales[order(Statewise_Sales$Total_Sales),]$State) +
+  theme_classic()+
+  coord_flip()+
+  geom_text(aes(State,Total_Sales,label =Total_Sales))+
+  labs(x = "State", y = "Total Sales", title = "Statewise Sales Analysis")+
+  theme(axis.text = element_text(size = 10, face = "bold"), title  =  element_text(size = 16))+
+  theme(legend.title = element_text(size=10),legend.text = element_text(size=10),legend.position="bottom")
+```
+
+
+
+#*Regionwise Sales Analysis
+```{r}
+Regionwise_Sales= Superstore %>%
+  group_by(Region) %>%
+  summarise(TotalS= sum(Sales)) %>%
+  arrange(desc(TotalS))
+datatable(Regionwise_Sales)
+```
+
+
+
+#Plotting Regionwise Sales Analysis
+```{r}
+ggplot(Regionwise_Sales,aes(reorder(Region,TotalS),TotalS,fill=Region))+
+  geom_col(width = 0.5, alpha = 0.5)+
+  geom_point(size=10, color="black",alpha=0.07)+
+  scale_x_discrete(labels = Regionwise_Sales[order(Regionwise_Sales$TotalS),]$Region) +
+  theme_classic()+
+  coord_flip()+
+  geom_text(aes(Region,TotalS,label =TotalS))+
+  labs(x = "Region", y = "Total Regionwise Sales", title = "Regionwise Analysis of Sales")+
+  theme(axis.text = element_text(size = 10, face = "bold"), title  =  element_text(size = 16))+
+  theme(legend.title = element_text(size=10),legend.text = element_text(size=10),legend.position="bottom")
+```
+
+
+
+#Geographic Plots of Statewise Sales Analysis
+```{r}
+GSPlot= Superstore %>%
+  group_by(State) %>%
+  summarise(Total_Sales= sum(Sales)) %>%
+  arrange(desc(Total_Sales))
+datatable(GSPlot)
+```
+
+
+
+#Converting into a Geographic Plot
+```{r}
+colnames(GSPlot)= c('region', 'value')
+GSPlot$region= tolower(GSPlot$region)
+```
+
+
+#we use here library(choroplethr) and library(choroplethrMaps) for map
+
+#Plots of Statewise Sales Analysis
+```{r}
+state_choropleth(GSPlot,title= "Geographic Analysis of Sales",legend="Sales in USD")
+```
+
+
+##OBSERVATIONS
+
+#1. State of California recorded the highest Sales, around 450,000 USD.
+
+#2. New York has the second highest Sales, around 300,000 USD.
+
+#3. States of Texas and Washington record the third and fourth highest sales, around 150,000 USD and 140,000 USD respectively.
+  
+#4. North Dakota records the least Sales, around 1000 USD. 
+  
+#5. We can see from the geographic and regionwise plots that the company's Sales are mostly concentrated on the East and West Coast of America.
+
+#Profit Analysis
+
+#Statewise Profit Analysis
+```{r}
+Statewise_Profit= Superstore %>%
+  group_by(State) %>% 
+  summarise(Total_Profit= sum(Profit)) %>%
+  arrange(desc(Total_Profit))
+datatable(Statewise_Profit)
+```
+
+
+#Plotting Statewise Profit Analysis
+```{r}
+ggplot(Statewise_Profit, aes(x=State,y=Total_Profit,fill= State)) +
+  geom_col(width = 0.7, alpha = 0.5)+
+  geom_point(size=3, color="black",alpha=0.07)+
+  scale_x_discrete(labels = Statewise_Profit[order(Statewise_Profit$Total_Profit),]$State) +
+  coord_flip()+
+  geom_text(aes(State,Total_Profit,label =Total_Profit))+
+  labs(x = "State", y = "Total Profit", title = "Statewise Profit Analysis")+
+  theme(axis.text = element_text(size = 10, face = "bold"), title  =  element_text(size = 16))+
+  theme(legend.title = element_text(size=10),legend.text = element_text(size=10),legend.position="bottom")
+```
+
+
+
+#Regionwise Profit Analysis
+```{r}
+Regionwise_Profit= Superstore %>%
+  group_by(Region) %>%
+  summarise(TotalP= sum(Profit)) %>%
+  arrange(desc(TotalP))
+datatable(Regionwise_Profit)
+```
+
+#Plotting Regionwise Profit Analysis
+```{r}
+ggplot(Regionwise_Profit, aes(x=Region,y=TotalP,fill= Region)) +
+  geom_col(width = 0.7, alpha = 0.5)+
+  geom_point(size=9, color="black",alpha=0.07)+
+  scale_x_discrete(labels = Regionwise_Profit[order(Regionwise_Profit$TotalP),]$Region) +
+  theme_classic()+
+  coord_flip()+
+  geom_text(aes(Region,TotalP,label =TotalP))+
+  labs(x = "Region", y = "Total Profit", title = "Statewise Profit Analysis")+
+  theme(axis.text = element_text(size = 10, face = "bold"), title  =  element_text(size = 16))+
+  theme(legend.title = element_text(size=10),legend.text = element_text(size=10),legend.position="bottom")
+```
+
+#Geographic Plots of Statewise Sales Analysis 
+```{r}
+GPPlot= Superstore %>%
+  group_by(State) %>%
+  summarise(Total_Profit= sum(Profit)) %>%
+  arrange(desc(Total_Profit))
+datatable(GPPlot)
+```
+
+#Converting into a Geographic Plot
+```{r}
+colnames(GPPlot)= c('region', 'value')
+GPPlot$region= tolower(GPPlot$region)
+```
+
+#Plotting Statewise Sales Analysis
+```{r}
+state_choropleth(GPPlot,title= "Geographic Analysis of Profit",legend="Profit in USD")
+```
+
+#Observations
+
+#1. From the Statewise Profit Analysis, the States of New York, California and Washington recorded the most profits.
+
+#2. The State of Texas was the most unprofitable for the company causing severe losses.
+
+#Doing some Statewise Profit/Sales Ratio Analysis 
+```{r}
+Profit_to_Sales= Superstore %>% 
+  group_by(State) %>%
+  summarise(Profit_Sales_Ratio= sum(Profit)/sum(Sales)) %>%
+  arrange(desc(Profit_Sales_Ratio))
+datatable(Profit_to_Sales)
+```
+
+#Plotting Statewise Profit/Sales Ratio Analysis 
+```{r}
+ggplot(Profit_to_Sales, aes(x=State,y=Profit_Sales_Ratio,fill= State)) +
+  geom_bar(stat = "identity",width = 0.7, alpha = 0.5)+
+  geom_point(size=3, color="black",alpha=0.07)+
+  scale_x_discrete(labels = Profit_to_Sales[order(Profit_to_Sales$Profit_Sales_Ratio),]$State) +
+  coord_flip()+
+  geom_text(aes(State,Profit_Sales_Ratio,label =Profit_Sales_Ratio))+
+  labs(x = "State", y = "Total Profit", title = "Statewise Profit Analysis")+
+  theme(axis.text = element_text(size = 10, face = "bold"), title  =  element_text(size = 16))+
+  theme(legend.title = element_text(size=10),legend.text = element_text(size=10),legend.position="bottom")
+```
+
+#Observations
+
+#Some Profit to Sales Ratio Analysis showed that Ohio had the worst Profit-Sales Ratio
+
+#We also understand that the states making the most profits, i.e, New York, California, and Washington do not show the maximum Profit-Sales ratio meaning that the company can improve its profits/sales in these states.
+
+#Sales and Profit Analysis Segmentwise
+```{r}
+Profit_each_segment= Superstore %>%
+  group_by(Segment) %>%
+  summarise(Ratio= sum(Profit)/sum(Sales))%>%
+  arrange(desc(Ratio))
+datatable(Profit_each_segment)
+```
+
+#plotting Profit/Sales Ratio Plots for each segment
+```{r}
+ggplot(Profit_each_segment, aes(x=Segment,y=Ratio,fill= Segment)) +
+  geom_col(width = 0.5, alpha = 0.5)+
+  geom_point(size=9, color="black",alpha=0.07)+
+  scale_x_discrete(labels = Profit_each_segment[order(Profit_each_segment$Ratio),]$Segment) +
+  theme_classic()+
+  coord_flip()+
+  geom_text(aes(Segment,Ratio,label =Ratio))+
+  labs(x = "Segment", y = "Total Profit", title = "Statewise Profit Analysis")+
+  theme(axis.text = element_text(size = 10, face = "bold"), title  =  element_text(size = 16))+
+  theme(legend.title = element_text(size=10),legend.text = element_text(size=10),legend.position="bottom")
+```
+
+#Observations
+
+#1. For the Home Office Segment the Profit/Sales Ratio is the highest.
+  
+#2. There is scope for the company to improve its Profit/Sales ratio in the Consumer and Corporate Segment.
+
